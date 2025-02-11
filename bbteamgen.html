@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Basketball Team Generator - By Gon</title>
+    <style>
+        html, body {
+            height: 100%;
+        }
+        body {
+            font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+            background-image: linear-gradient(90deg, #2E5077, #4DA1A9, #79D7BE);
+            background-color: #2E5077;
+            color: #F6F4F0;
+        }
+        button, input, select {
+            color: #F6F4F0;
+            background-color: #2E5077;
+            border: 2px solid #4DA1A9;
+            border-radius: 2px;
+        }
+        button:active {
+            background-color: #396495;
+        }
+        h1, h3 {
+            text-align: center;
+        }
+        ul {
+            padding-left: 0;
+            user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+        li {
+            display: block;
+        }
+        li span {
+            color: black;
+        }
+    </style>
+    <link rel="shortcut icon" href="https://cdn.pixabay.com/photo/2013/07/12/14/07/basketball-147794_1280.png" type="image/x-icon">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <h1>Basketball Team Generator</h1>
+    <h3>By Gon</h3>
+
+    <input type="text" id="name" placeholder="Player name..." autocomplete="off">
+    <select id="tier">
+        <option value="1">Tier 1</option>
+        <option value="2">Tier 2</option>
+    </select>
+    <button onclick="addPlayer()">Add player</button>
+
+    <br>
+
+    <div class="button">
+        <br>
+        <button onclick="removePlayers()">Remove selected players</button>
+    </div>
+
+    <h2>Players to use:</h2>
+    <div class="button">
+        <button onclick="playersTo(1)">Select all players</button>
+        <button onclick="playersTo(0)">Clear selected players</button>
+    </div>
+    <ul id="players"></ul>
+
+    <label for="teamnum">Amount of teams:</label>
+    <select id="teamnum">
+        <option value="2">2 teams</option>
+        <option value="3">3 teams</option>
+        <option value="4">4 teams</option>
+    </select>
+
+    <br><br>
+
+    <button onclick="makeTeams()">Generate Teams</button>
+
+    <div id="teams"></div>
+
+    <script>
+        let t1players = []
+        let t2players = []
+
+        if (localStorage.getItem("players")) {
+            localStorage.getItem("players").split("»").forEach(player => {
+                console.log(player)
+                if (player[0] === "1") {
+                    t1players.push(player.slice(1))
+                } else {
+                    t2players.push(player.slice(1))
+                }
+            })
+        }
+        
+        const nameInput = document.getElementById("name")
+        nameInput.addEventListener("keypress", (event) => {
+            if (event.key === "Enter") {
+                addPlayer()
+            }
+        })
+
+        let players = t1players.concat(t2players)
+        let playerids = {}
+        
+        updatePlayers()
+
+        function toggle(li) {
+            li.className = li.className === "yes" ? "no" : "yes"
+            li.style.color = li.className === "yes" ? "#F6F4F0" : "#A6A4A0"
+            li.firstChild.textContent = li.className === "yes" ? "⦿" : "⦾"
+        }
+
+        function makeTeams() {
+            t1players = shuffle(t1players)
+            t2players = shuffle(t2players)
+            const teamnum = parseInt(document.getElementById("teamnum").value)
+            const teams = Array.from({length: teamnum}, () => [])
+            const display = document.getElementById("teams")
+            let idx = 0
+
+            display.innerHTML = "<h4><img src=\"https://media.tenor.com/HzbYixIF_GcAAAAj/betterttv-loading.gif\" alt=\"Loading animation\" width=\"15\", height=\"15\"> Balancing Teams...</h4>"
+
+            t1players.forEach((name) => {
+                if (document.getElementById(String(playerids[name])).className === "yes") {
+                    teams[idx].push(name)
+
+                    idx++
+                    idx %= teamnum
+                }
+            })
+            t2players.forEach((name) => {
+                if (document.getElementById(String(playerids[name])).className === "yes") {
+                    teams[idx].push(name)
+
+                    idx++
+                    idx %= teamnum
+                }
+            })
+
+            display.innerHTML = ""
+
+            teams.forEach((names, idx) => {
+                const title = document.createElement("h2")
+                title.textContent = `Team ${idx + 1}`
+                const list = document.createElement("ul")
+
+                names.forEach((name) => {
+                    const item = document.createElement("li")
+                    item.textContent = name
+
+                    list.appendChild(item)
+                    list.appendChild(document.createElement("br"))
+                })
+                if (names.length === 0) {
+                    const item = document.createElement("li")
+                    item.textContent = "No players"
+
+                    list.appendChild(item)
+                    list.appendChild(document.createElement("br"))
+                }
+
+                display.appendChild(title)
+                display.appendChild(list)
+            })
+        }
+
+        function shuffle(array) {
+            if (array.length < 2) {
+                return array
+            }
+
+            for (let _ = 0; _ < Math.floor(Math.random() * array.length) + 3; _++) {
+                const i = Math.round(Math.random() * (array.length - 1))
+                let j = i
+                let temp = 0
+                console.log("ok")
+
+                while (j === i) {
+                    j = Math.round(Math.random() * (array.length - 1))
+                }
+                console.log("ok")
+
+                temp = array[i]
+                array[i] = array[j]
+                array[j] = temp
+                console.log("ok")
+            }
+
+            return array
+        }
+
+        function addPlayer() {
+            if (nameInput.value.trim() === "") {
+                if (navigator.onLine) {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Please type something"
+                    })
+                } else {
+                    alert("Please type something")
+                }
+
+                return
+            }
+            if (nameInput.value.includes("»")) {
+                if (navigator.onLine) {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Invalid Name",
+                        text: "Please remove all \"»\" symbols from the name"
+                    })
+                } else {
+                    alert("Invalid Name\nPlease remove all \"»\" symbols from the name")
+                }
+
+                return
+            }
+            if (t1players.concat(t2players).includes(capitalize(nameInput.value))) {
+                if (navigator.onLine) {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Duplicated Name",
+                        text: "This name has already been entered, please use another name"
+                    })
+                } else {
+                    alert("Duplicated Name\nThis name has already been entered, please use another name")
+                }
+
+                return
+            }
+
+            nameInput.value = capitalize(nameInput.value)
+
+            if (document.getElementById("tier").value === "1") {
+                t1players.push(nameInput.value)
+            } else {
+                t2players.push(nameInput.value)
+            }
+
+            nameInput.value = ""
+
+            updatePlayers()
+        }
+
+        function removePlayers() {
+            Object.values(playerids).forEach((id) => {
+                const player = document.getElementById(id)
+                const name = Object.keys(playerids).find(key => playerids[key] === parseInt(id))
+
+                if (player.className === "yes") {
+                    player.remove()
+
+                    t1players = t1players.filter(value => value != name)
+                    t2players = t2players.filter(value => value != name)
+                }
+            })
+
+            updatePlayers()
+        }
+
+        function updatePlayers() {
+            players = t1players.concat(t2players)
+            playerids = {}
+            players.forEach((name, id) => {
+                playerids[name] = id
+            })
+            const ptu = document.getElementById("players")
+            ptu.innerHTML = ""
+
+            players.forEach((name) => {
+                const player = document.createElement("li")
+                player.innerHTML = "<span>⦿</span>" + name
+                player.className = "yes"
+                player.id = playerids[name]
+                player.setAttribute("onclick", "toggle(this)")
+
+                ptu.appendChild(player)
+
+                toggle(player)
+            })
+
+            document.querySelectorAll(".button").forEach(button => {
+                if (ptu.innerHTML === "") {
+                    button.style.display = "none"
+                } else {
+                    button.style.display = "inline-block"
+                }
+            })
+
+            localStorage.setItem("players", "")
+            t1players.forEach(name => {
+                localStorage.players += (localStorage.players === "" ? "" : "»") + "1" + name
+            })
+            t2players.forEach(name => {
+                localStorage.players += (localStorage.players === "" ? "" : "»") + "2" + name
+            })
+        }
+
+        function playersTo(to) {
+            Object.values(playerids).forEach(id => {
+                const player = document.getElementById(id)
+
+                if ((player.className === "yes" && to === 0) || (player.className === "no" && to === 1)) {
+                    toggle(player)
+                }
+            })
+        }
+
+        function capitalize(string) {
+            return `${string[0].toUpperCase()}${string.slice(1).toLowerCase()}`
+        }
+    </script>
+</body>
+</html>
