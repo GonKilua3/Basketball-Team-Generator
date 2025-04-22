@@ -66,7 +66,7 @@
     <h3>By Gon</h3>
 
     <button onclick="showInfo(this)" id="infoButton">How To Use</button>
-    <button onclick="topicIdx++; displayTopic()" id="next">Next 'How To'</button>
+    <button onclick="topicIdx++; displayTopic()" id="next"></button>
 
     <br><br>
 
@@ -371,7 +371,7 @@
             const topicE = document.getElementById("topic")
             const answersE = document.getElementById("answer")
             const next = document.getElementById("next")
-            const topics = ["HOW TO ADD A PLAYER", "HOW TO REMOVE PLAYERS:", "HOW TO GENERATE THE TEAMS:"]
+            const topics = ["HOW TO ADD A PLAYER", "HOW TO REMOVE PLAYERS", "HOW TO GENERATE THE TEAMS"]
             const answers = [
                 ["Go to the top input field and type the player's name.", "Select the tier of the player (tier 1 is pro, tier 2 is beginner) so it can make teams more fair.", "Click add player or select the input field and press enter."],
                 ["Select all the players you want to remove by ticking them (by pressing them).", "Press \"Remove Selected Players\" above all the names."],
@@ -395,9 +395,9 @@
             })
 
             if (topicIdx === 2) {
-                next.textContent = "Back To 'HOW TO ADD A PLAYER'"
+                next.textContent = "HOW TO ADD A PLAYER"
             } else {
-                next.textContent = `Forward To '${topics[(topicIdx + 1) % 3]}'`
+                next.textContent = topics[(topicIdx + 1) % 3]
             }
         }
 
@@ -408,4 +408,4 @@
         displayTopic()
     </script>
 </body>
-</html>
+</html>`
